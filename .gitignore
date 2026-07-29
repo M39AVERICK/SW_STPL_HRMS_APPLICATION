@@ -1,35 +1,30 @@
-# Virtual Environment
-myvenv/
-venv/
-env/
+# Environment variables
+.env
+.env.local
+.env.production
 
 # Python
+venv/
+env/
+.venv/
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.pytest_cache/
+*.log
 
 # Django
 db.sqlite3
-media/
 staticfiles/
-
-# Environment
-.env
-.env.*
-
-# VS Code
-.vscode/
+media/
 
 # React / Node
 node_modules/
 dist/
 build/
 
-# Logs
-*.log
+# IDE
+.vscode/
+.idea/
 
-# OS Files
+# Operating system
 .DS_Store
 Thumbs.db
