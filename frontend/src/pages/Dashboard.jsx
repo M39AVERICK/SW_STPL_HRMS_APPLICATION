@@ -63,14 +63,14 @@ function Dashboard() {
       <div className="flex-1 p-6">
 
         {/* HEADER */}
-        <div className="bg-white p-4 rounded shadow mb-4">
+        {/* <div className="bg-white p-4 rounded shadow mb-4">
           <h1 className="text-xl font-semibold">
             Welcome, {user?.name || "User"}
           </h1>
           <p className="text-sm text-gray-500">
             HRMS Dashboard
           </p>
-        </div>
+        </div> */}
 
         {/* PAGE CONTENT */}
         <div className="bg-white p-4 rounded shadow min-h-[70vh]">
