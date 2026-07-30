@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "HR_APP",
     'django_filters',
     'Attendance',
+    'django_extensions',
 ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

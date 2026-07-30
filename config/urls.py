@@ -16,6 +16,9 @@ urlpatterns = [
 
     # 🧾 PO MODULE (future)
     path('api/po/', include('po_app.urls')),
+
+    # 🏢 Attendance MODULE
+    path('api/attendance/', include('Attendance.urls')),
 ]
 
 # ADD THIS BLOCK AT THE VERY BOTTOM

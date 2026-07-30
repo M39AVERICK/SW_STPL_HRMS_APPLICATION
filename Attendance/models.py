@@ -1,6 +1,35 @@
 from django.db import models
 from HR_APP.models import Employee
 
+class Shift(models.Model):
+
+    SHIFT_CHOICES = [
+        ("Morning", "Morning"),
+        ("General", "General"),
+        ("Night", "Night"),
+    ]
+
+    name = models.CharField(
+        max_length=20,
+        choices=SHIFT_CHOICES,
+        unique=True
+    )
+
+    start_time = models.TimeField()
+
+    end_time = models.TimeField()
+
+    grace_minutes = models.PositiveIntegerField(default=15)
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
 
 class Attendance(models.Model):
 
@@ -14,12 +43,7 @@ class Attendance(models.Model):
         ("Work From Home", "Work From Home"),
     ]
 
-    SHIFT_CHOICES = [
-        ("General", "General"),
-        ("Morning", "Morning"),
-        ("Evening", "Evening"),
-        ("Night", "Night"),
-    ]
+    
 
     employee = models.ForeignKey(
         Employee,
@@ -45,17 +69,41 @@ class Attendance(models.Model):
         default="Present"
     )
 
-    shift = models.CharField(
-        max_length=20,
-        choices=SHIFT_CHOICES,
-        default="General"
+    shift = models.ForeignKey(
+    Shift,
+    on_delete=models.PROTECT,
+    related_name="attendance_records"
     )
 
     remarks = models.TextField(
         blank=True,
         null=True
     )
+    working_hours = models.DurationField(
+    null=True,
+    blank=True
+    )
 
+    
+
+    
+
+    late_minutes = models.PositiveIntegerField(
+            default=0
+    )
+
+    is_late = models.BooleanField(
+            default=False
+    )
+    
+# Attendance Behaviour
+
+    is_early_leave = models.BooleanField(default=False)
+    early_leave_minutes = models.PositiveIntegerField(default=0)
+
+    is_overtime = models.BooleanField(default=False)
+    overtime_minutes = models.PositiveIntegerField(default=0)
+    is_half_day = models.BooleanField(default=False)
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -67,7 +115,18 @@ class Attendance(models.Model):
     class Meta:
         ordering = ["-attendance_date"]
 
-        unique_together = ("employee", "attendance_date")
+        indexes = [
+            models.Index(fields=["attendance_date"]),
+            models.Index(fields=["employee"]),
+            models.Index(fields=["status"]),
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["employee", "attendance_date"],
+                name="unique_employee_attendance",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.employee.first_name} - {self.attendance_date}"
+        return f"{self.employee.employee_id} | {self.employee.first_name} | {self.attendance_date}"
