@@ -1,43 +1,89 @@
-import { useEffect, useState } from "react";
-import API from "../api";
-
-import EmployeeGrowthChart from "../components/dashboard/EmployeeGrowthChart";
-import DepartmentChart from "../components/dashboard/DepartmentChart";
-import RecentEmployees from "../components/dashboard/RecentEmployees";
-import QuickActions from "../components/dashboard/QuickActions";
-import Birthdays from "../components/dashboard/Birthdays";
-import Notifications from "../components/dashboard/Notifications";
-import DashboardHeader from "../components/dashboard/DashboardHeader";
+import { Clock, CheckCircle2 } from "lucide-react";
 
 function DashboardHome() {
   return (
-    <div className="space-y-6">
-      <DashboardHeader />
+    <div className="space-y-8">
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* Header */}
+      <div className="bg-white rounded-2xl shadow border p-8">
 
-        <EmployeeGrowthChart />
+        <h1 className="text-3xl font-bold text-gray-800">
+          HRMS Dashboard
+        </h1>
 
-        <Notifications />
-
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-
-        <DepartmentChart />
-
-        <Birthdays />
+        <p className="text-gray-500 mt-2">
+          Enterprise Analytics Dashboard
+        </p>
 
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* Coming Soon */}
+      <div className="bg-white rounded-2xl shadow border p-12 text-center">
 
-        <RecentEmployees />
+        <div className="flex justify-center mb-6">
+          <Clock size={70} className="text-blue-600" />
+        </div>
 
-        <QuickActions />
+        <h2 className="text-3xl font-bold text-gray-800">
+          Dashboard Under Development
+        </h2>
+
+        <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
+          Analytics widgets will automatically become available as each HRMS
+          module is completed.
+        </p>
 
       </div>
 
+      {/* Roadmap */}
+
+      <div className="bg-white rounded-2xl shadow border p-8">
+
+        <h2 className="text-2xl font-semibold mb-6">
+          Development Roadmap
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-4">
+
+          <RoadmapItem title="Authentication" done />
+          <RoadmapItem title="Employee Management" done />
+
+          <RoadmapItem title="Attendance Module" />
+          <RoadmapItem title="Leave Management" />
+
+          <RoadmapItem title="Payroll Module" />
+          <RoadmapItem title="Assets Module" />
+
+          <RoadmapItem title="Recruitment Module" />
+          <RoadmapItem title="Performance Module" />
+
+          <RoadmapItem title="Reports & Analytics" />
+          <RoadmapItem title="Enterprise Dashboard" />
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+function RoadmapItem({ title, done = false }) {
+  return (
+    <div
+      className={`flex items-center justify-between rounded-xl border p-4 ${
+        done
+          ? "bg-green-50 border-green-200"
+          : "bg-gray-50 border-gray-200"
+      }`}
+    >
+      <span className="font-medium">{title}</span>
+
+      {done ? (
+        <CheckCircle2 className="text-green-600" size={22} />
+      ) : (
+        <span className="text-sm text-gray-500">Coming Soon</span>
+      )}
     </div>
   );
 }
