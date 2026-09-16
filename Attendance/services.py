@@ -1,140 +1,81 @@
-from datetime import datetime, timedelta
-
+from rest_framework.exceptions import ValidationError
+from datetime import date
+from .models import Attendance
 
 class AttendanceService:
 
-
     @staticmethod
-    def combine_date_time(date, time):
+    def validate_duplicate(instance, data):
 
-        return datetime.combine(
-            date,
-            time
+        employee = data.get("employee")
+        attendance_date = data.get("attendance_date")
+
+        query = Attendance.objects.filter(
+            employee=employee,
+            attendance_date=attendance_date
         )
 
+        if instance:
+            query = query.exclude(pk=instance.pk)
 
-    @staticmethod
-    def calculate_working_hours(attendance):
-
-        if not attendance.check_in or not attendance.check_out:
-            return None
-
-
-        start = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.check_in
-        )
-
-
-        end = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.check_out
-        )
-
-
-        # Night shift handling
-
-        if end < start:
-            end += timedelta(days=1)
-
-
-        return end - start
-
-
-
-    @staticmethod
-    def calculate_late(attendance):
-
-        if not attendance.check_in:
-            return False,0
-
-
-        shift_start = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.shift.start_time
-        )
-
-
-        check_in = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.check_in
-        )
-
-
-        difference = int(
-            (check_in-shift_start).total_seconds()/60
-        )
-
-
-        if difference > attendance.shift.grace_minutes:
-
-            return True,difference
-
-
-        return False,0
-
-
-
-    @staticmethod
-    def calculate_overtime(attendance):
-
-        if not attendance.check_out:
-            return False,0
-
-
-        shift_end = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.shift.end_time
-        )
-
-
-        checkout = AttendanceService.combine_date_time(
-            attendance.attendance_date,
-            attendance.check_out
-        )
-
-
-        if checkout < attendance.shift.start_time:
-            checkout += timedelta(days=1)
-
-
-
-        overtime = int(
-            (checkout-shift_end).total_seconds()/60
-        )
-
-
-        if overtime > 0:
-            return True,overtime
-
-
-        return False,0
-
-
-
-    @staticmethod
-    def process_attendance(attendance):
-
-
-        attendance.working_hours = (
-            AttendanceService.calculate_working_hours(
-                attendance
+        if query.exists():
+            raise ValidationError(
+                "Attendance already exists for this employee on this date."
             )
-        )
+    @staticmethod
+    def validate_future_date(data):
 
+        attendance_date = data.get("attendance_date")
 
-        attendance.is_late, attendance.late_minutes = (
-            AttendanceService.calculate_late(
-                attendance
+        if attendance_date and attendance_date > date.today():
+
+            raise ValidationError(
+                "Future attendance cannot be marked."
             )
+    @staticmethod
+    def validate_check_times(data):
+
+        check_in = data.get("check_in")
+        check_out = data.get("check_out")
+
+        if check_in and check_out:
+
+            if check_out <= check_in:
+
+                raise ValidationError(
+                    "Check Out must be later than Check In."
+                )
+    @staticmethod
+    def validate_status(data):
+
+        status = data.get("status")
+
+        check_in = data.get("check_in")
+        check_out = data.get("check_out")
+
+        if status in ["Absent", "Leave"]:
+
+            if check_in or check_out:
+
+                raise ValidationError(
+                    "Absent/Leave cannot have Check In or Check Out."
+                )
+    @staticmethod
+    def validate_attendance(instance, data):
+
+        AttendanceService.validate_duplicate(
+            instance,
+            data
         )
 
-
-        attendance.is_overtime, attendance.overtime_minutes = (
-            AttendanceService.calculate_overtime(
-                attendance
-            )
+        AttendanceService.validate_future_date(
+            data
         )
 
+        AttendanceService.validate_check_times(
+            data
+        )
 
-        return attendance
+        AttendanceService.validate_status(
+            data
+        )

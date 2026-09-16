@@ -15,8 +15,12 @@ from dotenv import load_dotenv
 from datetime import timedelta
 import os
 
-# ✅ Correct BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ✅ Correct BASE_DIR
 # Load .env
 load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
@@ -51,9 +55,6 @@ INSTALLED_APPS = [
     'Attendance',
     'django_extensions',
 ]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

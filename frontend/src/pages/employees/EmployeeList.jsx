@@ -2141,16 +2141,18 @@ Next
 
 
             {/* FORM */}
-            <div className="px-8 py-6">
+            <div className="px-8 py-6 bg-slate-50">
+    
   
   {step === 0 && (
+                  
 
 <div className="grid grid-cols-12 gap-8">
 
   {/* Left Side */}
   <div className="col-span-9">
 
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
       <div className="form-group">
         <label className="form-label">First Name</label>
@@ -2346,7 +2348,7 @@ Next
   {/* Right Side */}
   <div className="col-span-3">
 
-    <div className="sticky top-2 bg-white rounded-2xl border shadow-lg p-6">
+    <div className="sticky top-4 bg-white rounded-2xl border border-slate-200 shadow-md p-6">
           <h3 className="text-xl font-bold text-center">
 Employee Profile
 </h3>

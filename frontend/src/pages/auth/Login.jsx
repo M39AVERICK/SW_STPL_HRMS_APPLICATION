@@ -11,18 +11,60 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [time, setTime] = useState(new Date());
 
   const navigate = useNavigate();
+  const carouselCards = [
+  {
+    title: "Oracle Fusion HRMS",
+    description: "Enterprise Workforce & Resource Management",
+    image:
+      "https://images.unsplash.com/photo-1551434678-e076c223a692",
+  },
+  {
+    title: "Employee Management",
+    description: "Manage your workforce, departments and employee information.",
+    image:
+      "https://images.unsplash.com/photo-1521737711867-e3b97375f902",
+  },
+  {
+    title: "Attendance Management",
+    description: "Track employee attendance and workforce activity.",
+    image:
+      "https://images.unsplash.com/photo-1556761175-b413da4baf72",
+  },
+  {
+    title: "Leave Management",
+    description: "Manage employee leave requests and approval workflows.",
+    image:
+      "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+  },
+  {
+    title: "HR Analytics",
+    description: "Monitor workforce information and business insights.",
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+  },
+];
 
   // 🕒 LIVE CLOCK
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date());
     }, 1000);
+    
 
     return () => clearInterval(interval);
   }, []);
+  // 🔄 LOGIN CAROUSEL
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentSlide((prev) => (prev + 1) % carouselCards.length);
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, []);
 
   // ✨ MORE REALISTIC ENTERPRISE TEXT
   const fullText = "Oracle Fusion HRMS • Secure Workforce Management System";
@@ -61,11 +103,14 @@ function Login() {
       }
 
       localStorage.setItem("accessToken", access);
-      localStorage.setItem("user", JSON.stringify(user));
+localStorage.setItem("user", JSON.stringify(user));
 
-      login(access, user);
+login(access, user);
 
-      navigate("/dashboard");
+// Show welcome notification after entering dashboard
+sessionStorage.setItem("showWelcome", "true");
+
+navigate("/dashboard");
 
     } catch (err) {
       setError("Invalid credentials");
@@ -75,26 +120,63 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 relative font-sans">
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 relative font-sans p-4">
+      {/* LEFT CAROUSEL */}
+<div className="hidden md:flex w-1/2 relative p-4">
 
-      {/* LEFT IMAGE */}
-      <div className="hidden md:flex w-1/2 relative">
+  <div className="login-carousel">
+
+    {/* Slides */}
+    {carouselCards.map((card, index) => (
+      <div
+        key={index}
+        className={`login-slide ${
+          index === currentSlide
+            ? "login-slide-active"
+            : ""
+        }`}
+      >
+
+        {/* Image */}
         <img
-          src="https://images.unsplash.com/photo-1551434678-e076c223a692"
-          className="w-full h-full object-cover"
-          alt="enterprise"
+          src={card.image}
+          className="login-slide-image"
+          alt={card.title}
         />
-        <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center text-center px-6">
-          <div>
-            <h1 className="text-3xl font-semibold text-white mb-3">
-              Oracle Fusion HRMS
-            </h1>
-            <p className="text-gray-300 text-sm">
-              Enterprise Workforce & Resource Management
-            </p>
+
+        {/* Overlay */}
+        <div className="login-slide-overlay"></div>
+
+        {/* Content */}
+        <div className="login-slide-content">
+
+          {/* Badge */}
+          <div className="login-carousel-badge">
+            <span className="login-carousel-badge-dot"></span>
+
+            STPL HRMS
           </div>
+
+          {/* Title */}
+          <h1 className="login-slide-title">
+            {card.title}
+          </h1>
+
+          {/* Description */}
+          <p className="login-slide-description">
+            {card.description}
+          </p>
+
         </div>
+
       </div>
+    ))}
+
+
+    
+  </div>
+
+</div>
 
       {/* LOGIN FORM */}
       <div className="flex w-full md:w-1/2 items-center justify-center px-4">
