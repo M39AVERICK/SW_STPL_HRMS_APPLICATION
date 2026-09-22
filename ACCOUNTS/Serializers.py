@@ -102,6 +102,9 @@ class Password_change_Serializer(serializers.Serializer):
 # =========================
 # 🔹 SEND PASSWORD RESET EMAIL
 # =========================
+
+
+
 class Send_email_Serializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -118,22 +121,73 @@ class Send_email_Serializer(serializers.Serializer):
 
         link = f"http://localhost:5173/reset-password/{uid}/{token}"
 
-        body = (
-            "Hello,\n\n"
-            "Click below to reset your password:\n\n"
-            f"{link}\n\n"
-            "If not requested, ignore this email."
-        )
+        # Cleaned HTML string without CSS brace conflicts
+        body = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; margin: 0; padding: 0;">
+          <div style="max-width: 580px; margin: 40px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            
+            <!-- Header -->
+            <div style="background-color: #0f172a; padding: 28px 32px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td width="48" style="vertical-align: middle;">
+                    <div style="background-color: #2563eb; color: #ffffff; font-weight: 800; font-size: 20px; width: 42px; height: 42px; border-radius: 12px; text-align: center; line-height: 42px;">S</div>
+                  </td>
+                  <td style="vertical-align: middle; padding-left: 12px;">
+                    <div style="color: #ffffff; font-size: 18px; font-weight: 700; margin: 0;">STPL Systems</div>
+                    <div style="color: #94a3b8; font-size: 12px; margin-top: 2px;">Oracle HRMS Cloud • Account Security</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 36px 32px; color: #334155;">
+              <div style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Password Reset Request</div>
+              <p style="font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px;">
+                We received a request to reset the password for your STPL account. Click the button below to establish your new security credentials.
+              </p>
+              
+              <!-- Action Button -->
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="{link}" target="_blank" style="background-color: #2563eb; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none; padding: 12px 28px; border-radius: 10px; display: inline-block;">Reset Account Password</a>
+              </div>
+
+              <!-- Security Notice -->
+              <div style="background-color: #f1f5f9; border-left: 4px solid #64748b; padding: 14px; border-radius: 6px; font-size: 12px; color: #475569; margin-top: 24px;">
+                <strong>Security Notice:</strong> This link will expire in 24 hours. If you did not request this change, please disregard this email or contact your STPL administrator.
+              </div>
+
+              <!-- Fallback Link -->
+              <div style="margin-top: 20px; font-size: 11px; color: #64748b; word-break: break-all;">
+                If the button above does not work, copy and paste this URL into your browser:<br>
+                <a href="{link}" style="color: #2563eb;">{link}</a>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+              © 2026 STPL Enterprise Cloud Services. All rights reserved.<br>
+              This is an automated system message. Please do not reply directly.
+            </div>
+
+          </div>
+        </body>
+        </html>
+        """
 
         Utiles.send_email(
-            subject="Password Reset",
+            subject="STPL Account: Reset Your Password",
             body=body,
             to_email=user.email
         )
 
         return attrs
-
-
 # =========================
 # 🔹 RESET PASSWORD
 # =========================
