@@ -2,8 +2,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.parsers import MultiPartParser, FormParser
+
 import pandas as pd
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 from .models import Employee, Department
 from .serializers import (
@@ -28,16 +29,14 @@ class EmployeeViewSet(ModelViewSet):
     )
 
     serializer_class = EmployeeSerializer
+    parser_classes = (JSONParser, MultiPartParser, FormParser)
 
     permission_classes = [
         IsAuthenticated,
         IsAdminOrHRStrict,
     ]
 
-    parser_classes = [
-        MultiPartParser,
-        FormParser,
-    ]
+    
 
     filter_backends = [
         DjangoFilterBackend,
