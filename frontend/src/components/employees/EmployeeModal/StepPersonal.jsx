@@ -58,10 +58,11 @@ export default function StepPersonal({ formData, onChange, readOnly }) {
         <select
           name="gender"
           disabled={readOnly}
-          value={formData.gender || "Male"}
+          value={formData.gender || ""}
           onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2 text-sm disabled:bg-gray-50"
         >
+          <option value="">Select Gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
           <option value="Other">Other</option>
@@ -91,10 +92,11 @@ export default function StepPersonal({ formData, onChange, readOnly }) {
         <select
           name="marital_status"
           disabled={readOnly}
-          value={formData.marital_status || "Single"}
+          value={formData.marital_status || ""}
           onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2 text-sm disabled:bg-gray-50"
         >
+          <option value="">Select Marital Status</option>
           <option value="Single">Single</option>
           <option value="Married">Married</option>
           <option value="Divorced">Divorced</option>
@@ -110,10 +112,11 @@ export default function StepPersonal({ formData, onChange, readOnly }) {
         <select
           name="blood_group"
           disabled={readOnly}
-          value={formData.blood_group || "A+"}
+          value={formData.blood_group || ""}
           onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2 text-sm disabled:bg-gray-50"
         >
+          <option value="">Select Blood Group</option>
           <option value="A+">A+</option>
           <option value="A-">A-</option>
           <option value="B+">B+</option>
@@ -134,9 +137,10 @@ export default function StepPersonal({ formData, onChange, readOnly }) {
           type="text"
           name="nationality"
           disabled={readOnly}
-          value={formData.nationality || "Indian"}
+          value={formData.nationality || ""}
           onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2 text-sm disabled:bg-gray-50"
+
         />
       </div>
 

@@ -246,7 +246,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
         # -----------------------------------------------------
 
         employee = Employee.objects.create(
-            user=request.user,
             **validated_data
         )
 

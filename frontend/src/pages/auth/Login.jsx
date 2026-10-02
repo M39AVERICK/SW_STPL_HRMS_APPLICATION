@@ -78,37 +78,44 @@ function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await API.post("users/login/", form);
-      const { access, user } = res.data;
+  try {
+    const res = await API.post("users/login/", form);
 
-      if (!user?.is_active) {
-        setError("Account is disabled. Please contact your administrator.");
-        setLoading(false);
-        return;
-      }
+    const { access, user } = res.data;
 
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      login(access, user);
-      sessionStorage.setItem("showWelcome", "true");
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Invalid corporate credentials. Please try again.");
-    } font-sans 
+    if (!user?.is_active) {
+      setError("Account is disabled. Please contact your administrator.");
       setLoading(false);
-    
-  };
+      return;
+    }
+
+    localStorage.setItem("accessToken", access);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    login(access, user);
+    sessionStorage.setItem("showWelcome", "true");
+
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("LOGIN ERROR:", err.response?.data || err);
+
+    setError(
+      err.response?.data?.detail ||
+      "Invalid corporate credentials. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen w-full bg-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
       {/* Outer Card Container */}
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[620px] border border-slate-200/60 relative">
+      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-620px border border-slate-200/60 relative">
         
         {/* 🕒 Live Clock Badge (Top Right Desktop) */}
         <div className="absolute top-5 right-6 z-20 hidden md:flex items-center gap-1.5 px-3 py-1 bg-slate-100/80 backdrop-blur-md rounded-full border border-slate-200/80 text-xs text-slate-600 font-mono font-medium shadow-sm">
@@ -131,7 +138,7 @@ function Login() {
                 alt={card.title}
                 className="absolute inset-0 w-full h-full object-cover opacity-35"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-900/50 to-transparent" />
 
               {/* Top Enterprise Tag */}
               <div className="relative z-10 flex items-center">
@@ -189,7 +196,7 @@ function Login() {
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Secure Sign-In</h2>
                 {/* Animated Typing Text */}
-                <p className="text-xs text-slate-500 font-mono mt-1 min-h-[18px]">
+                <p className="text-xs text-slate-500 font-mono mt-1 min-h-18px">
                   {text}
                   <span className="animate-pulse text-blue-600 font-bold">|</span>
                 </p>
