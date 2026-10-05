@@ -9,6 +9,9 @@ import BulkActionBar from "./BulkActionsBar";
 import EmployeeTable from "./EmployeeTable";
 import EmployeePagination from "./EmployeePagination";
 import EmployeeModal from "./EmployeeModal/ModalContainer";
+import BulkImportModal from "./BulkImportModal";
+import DepartmentModal from "./DepartmentModal";
+
 
 export default function EmployeeList() {
   const [employees, setEmployees] = useState([]);
@@ -26,10 +29,14 @@ export default function EmployeeList() {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
-  // Selection & Modal
+
+// Selection & Modal
   const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [modal, setModal] = useState(null); // 'add' | 'edit' | 'view' | null
+  const [modal, setModal] = useState(null);
   const [selectedEmp, setSelectedEmp] = useState(null);
+
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
 
   // Fetching Data (Memoized with useCallback)
   const loadEmployees = useCallback(async () => {
@@ -141,6 +148,70 @@ export default function EmployeeList() {
       toast.error("Delete failed");
     }
   }, [loadEmployees]);
+  //handling thr export of all employees to excel file
+  const handleExportAll = useCallback(async () => {
+  try {
+    const response = await API.get("hr/employees/export/", {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data])
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "employees.xlsx");
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Employees exported successfully");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to export employees");
+  }
+}, []);
+
+const handleExportSelected = useCallback(async () => {
+  if (selectedEmployees.length === 0) {
+    toast.warning("Please select at least one employee");
+    return;
+  }
+
+  try {
+    const response = await API.get("hr/employees/export/", {
+      params: {
+        ids: selectedEmployees.join(","),
+      },
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data])
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "selected_employees.xlsx");
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Selected employees exported");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to export selected employees");
+  }
+}, [selectedEmployees]);
+
+
 
   const handleOpenModal = useCallback((type, emp = null) => {
     setSelectedEmp(emp);
@@ -156,32 +227,38 @@ export default function EmployeeList() {
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Header & Main Stats */}
       <EmployeeStats
-        employees={employees}
-        departments={departments}
-        onAddClick={() => handleOpenModal("add")}
-        onRefresh={loadEmployees}
-      />
+  employees={employees}
+  departments={departments}
+  onAddClick={() => handleOpenModal("add")}
+  onRefresh={loadEmployees}
+  onImport={() => setShowImportModal(true)}
+  onExport={handleExportAll}
+/>
+
 
       {/* Filter Controls */}
       <EmployeeFilters
-        search={search}
-        setSearch={setSearch}
-        departmentFilter={departmentFilter}
-        setDepartmentFilter={setDepartmentFilter}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        departments={departments}
-      />
+  search={search}
+  setSearch={setSearch}
+  departmentFilter={departmentFilter}
+  setDepartmentFilter={setDepartmentFilter}
+  statusFilter={statusFilter}
+  setStatusFilter={setStatusFilter}
+  departments={departments}
+  onManageDepartments={() => setShowDepartmentModal(true)}
+/>
+
+
 
       {/* Bulk Action Bar */}
-      {selectedEmployees.length > 0 && (
-        <BulkActionBar
-          selectedEmployees={selectedEmployees}
-          employees={employees}
-          setSelectedEmployees={setSelectedEmployees}
-          loadEmployees={loadEmployees}
-        />
-      )}
+      <BulkActionBar
+  selectedEmployees={selectedEmployees}
+  setSelectedEmployees={setSelectedEmployees}
+  loadEmployees={loadEmployees}
+  onExportSelected={handleExportSelected}
+/>
+
+
 
       {/* Optimized Data Table */}
       <EmployeeTable
@@ -218,6 +295,28 @@ export default function EmployeeList() {
           onSuccess={loadEmployees}
         />
       )}
+      {showImportModal && (
+  <BulkImportModal
+    onClose={() => setShowImportModal(false)}
+    onSuccess={async () => {
+      setShowImportModal(false);
+      await loadEmployees();
+      await loadDepartments();
+    }}
+  />
+)}
+{showDepartmentModal && (
+  <DepartmentModal
+    departments={departments}
+    onClose={() => setShowDepartmentModal(false)}
+    onSuccess={async () => {
+      await loadDepartments();
+      setShowDepartmentModal(false);
+    }}
+  />
+)}
+
+
     </div>
   );
 }
