@@ -952,49 +952,7 @@ export default function ModalContainer({
   // DEBUG FORMDATA
   // ====================================================
 
-  const debugFormData = (data) => {
-    console.log(
-      "======================================"
-    );
-
-    console.log(
-      "EMPLOYEE FORM DATA"
-    );
-
-    console.log(
-      "Active Tab:",
-      activeTab
-    );
-
-    console.log(
-      "Employee ID:",
-      employeeId
-    );
-
-    console.log(
-      "Form State:",
-      formData
-    );
-
-    console.log(
-      "======================================"
-    );
-
-    for (const [
-      key,
-      value,
-    ] of data.entries()) {
-      console.log(
-        key,
-        ":",
-        value
-      );
-    }
-
-    console.log(
-      "======================================"
-    );
-  };
+  // const debugFormData = (data) => {};
 
   // ====================================================
   // SAVE CURRENT TAB
@@ -1022,7 +980,7 @@ export default function ModalContainer({
       const data =
         buildFormData();
 
-      debugFormData(data);
+      // debugFormData(data);
 
       // =================================================
       // NEW EMPLOYEE
@@ -1135,10 +1093,10 @@ export default function ModalContainer({
           data
         );
 
-      console.log(
-        "EMPLOYEE TAB SAVED:",
-        response.data
-      );
+      // console.log(
+      //   "EMPLOYEE TAB SAVED:",
+      //   response.data
+      // );
 
       toast.success(
         `${activeTab} saved successfully`

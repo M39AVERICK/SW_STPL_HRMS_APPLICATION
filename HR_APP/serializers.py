@@ -227,6 +227,28 @@ class EmployeeSerializer(serializers.ModelSerializer):
             )
 
         return value
+    # =========================================================
+    # EMPLOYMENT TYPE NORMALIZATION
+    # =========================================================
+
+    def to_internal_value(self, data):
+        data = data.copy()
+
+        employment_type = data.get("employment_type")
+
+        if employment_type is not None:
+            try:
+                data["employment_type"] = (
+                    Employee.normalize_employment_type(
+                        employment_type
+                    )
+                )
+            except ValueError as exc:
+                raise serializers.ValidationError({
+                    "employment_type": str(exc)
+                })
+
+        return super().to_internal_value(data)
 
     # =========================================================
     # CREATE

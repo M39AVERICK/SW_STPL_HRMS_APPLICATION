@@ -31,42 +31,57 @@ export default function BulkImportModal({ onClose, onSuccess }) {
     setFile(selectedFile);
   };
 
-  const handleImport = async () => {
-    if (!file) {
-      toast.warning("Please select a file first");
-      return;
+
+const handleImport = async () => {
+  if (!file) {
+    toast.warning("Please select a file first");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await API.post(
+      "hr/employees/import/",
+      formData
+    );
+
+    console.log("IMPORT STATUS:", response.status);
+    console.log("IMPORT RESPONSE:", response.data);
+
+    const result = response.data;
+
+    toast.success(
+      result?.message || "Import request completed"
+    );
+
+    if (onSuccess) {
+      await onSuccess();
     }
+  } catch (err) {
+    console.error("Import status:", err?.response?.status);
+    console.error("Import response:", err?.response?.data);
+    console.error("Import error:", err);
 
-    try {
-      setLoading(true);
+    const data = err?.response?.data;
 
-      const formData = new FormData();
-      formData.append("file", file);
+    const message =
+      data?.detail ||
+      data?.message ||
+      data?.error ||
+      (typeof data === "string" ? data : null) ||
+      "Import failed. Check the browser console and Django terminal.";
 
-      await API.post("hr/employees/import/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      toast.success("Employees imported successfully");
 
-      if (onSuccess) {
-        await onSuccess();
-      }
-    } catch (err) {
-      console.error("Import error:", err);
-
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.message ||
-        "Failed to import employees";
-
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

@@ -359,3 +359,157 @@ body {
     height: 34px;
   }
 }
+/* =========================================================
+   RESPONSIVE ADD EMPLOYEE MODAL
+   ========================================================= */
+
+/* Prevent padding and borders from increasing element widths */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Modal overlay: center the form and respect the viewport */
+.employee-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+/* Main employee modal */
+.employee-modal {
+  width: min(100%, 1000px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 16px;
+}
+
+/* Keep modal header visible */
+.employee-modal-header {
+  flex-shrink: 0;
+}
+
+/* Tabs: scroll horizontally if they do not fit */
+.employee-modal-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+}
+
+.employee-modal-tabs > * {
+  flex-shrink: 0;
+}
+
+/* Scroll the form body, not the whole modal */
+.employee-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Two columns on larger screens */
+.employee-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Prevent long fields from overflowing */
+.employee-form-grid > *,
+.employee-form-grid input,
+.employee-form-grid select,
+.employee-form-grid textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.employee-form-grid input,
+.employee-form-grid select,
+.employee-form-grid textarea {
+  width: 100%;
+}
+
+/* Keep footer buttons visible */
+.employee-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+/* Laptop and tablet layouts */
+@media (max-width: 768px) {
+  .employee-modal-overlay {
+    padding: 12px;
+  }
+
+  .employee-modal {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    border-radius: 12px;
+  }
+
+  .employee-modal-body {
+    padding: 16px;
+  }
+
+  .employee-form-grid {
+    gap: 16px 12px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 560px) {
+  .employee-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .employee-modal-header {
+    padding: 14px 16px;
+  }
+
+  .employee-modal-tabs > * {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .employee-modal-footer {
+    gap: 8px;
+    padding: 12px;
+  }
+}
+
+/* Short browser windows: preserve usable form space */
+@media (max-height: 650px) {
+  .employee-modal-overlay {
+    align-items: flex-start;
+  }
+
+  .employee-modal {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+}
