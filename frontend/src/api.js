@@ -1,6 +1,17 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8000/api/";
+// In local development and the current EC2 setup, Vite serves the UI on
+// port 5173 and Django serves the API on port 8000 on the same host. In a
+// production reverse-proxy deployment, /api/ stays on the current origin.
+const defaultApiBase = new URL(window.location.origin);
+if (defaultApiBase.port === "5173") {
+  defaultApiBase.port = "8000";
+}
+defaultApiBase.pathname = "/api/";
+defaultApiBase.search = "";
+defaultApiBase.hash = "";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || defaultApiBase.href;
 
 // =========================
 // 🔥 SINGLE AXIOS INSTANCE

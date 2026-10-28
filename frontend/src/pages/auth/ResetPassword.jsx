@@ -40,8 +40,15 @@ function ResetPassword() {
         navigate("/login");
       }, 2500);
     } catch (err) {
-      console.error(err);
-      setError("Invalid or expired reset link. Please request a new one.");
+      console.error("PASSWORD RESET CONFIRMATION ERROR:", err.response?.data || err);
+      const data = err.response?.data;
+      const apiMessage = data?.detail || data?.non_field_errors?.[0];
+      setError(
+        apiMessage ||
+        (err.response
+          ? "This reset link is invalid or expired. Request a new password reset link."
+          : "Cannot reach the server. Check that the API is running and its address is configured correctly.")
+      );
     } finally {
       setLoading(false);
     }

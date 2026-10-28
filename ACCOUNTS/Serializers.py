@@ -3,6 +3,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import authenticate
+from django.conf import settings
 
 from ACCOUNTS.models import CURRENT_USER
 from ACCOUNTS.utiles import Utiles
@@ -41,13 +42,17 @@ class Login_Serializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        email = attrs.get('email')
+        email = attrs.get('email', '').strip()
         password = attrs.get('password')
 
-        # 🔥 SAFE AUTH (IMPORTANT FIX)
+        # Resolve case-insensitively, then authenticate using the account's
+        # stored email so Django's configured authentication backend is used.
+        account = CURRENT_USER.objects.filter(email__iexact=email).first()
+        username = account.email if account else email
+
         user = authenticate(
             request=self.context.get('request'),
-            username=email,
+            username=username,
             password=password
         )
 
@@ -109,17 +114,17 @@ class Send_email_Serializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate(self, attrs):
-        email = attrs.get('email')
+        email = attrs.get('email', '').strip()
 
-        try:
-            user = CURRENT_USER.objects.get(email=email)
-        except CURRENT_USER.DoesNotExist:
+        user = CURRENT_USER.objects.filter(email__iexact=email).first()
+        if user is None:
             raise serializers.ValidationError("User not found")
 
         uid = urlsafe_base64_encode(force_bytes(user.id))
         token = PasswordResetTokenGenerator().make_token(user)
 
-        link = f"http://localhost:5173/reset-password/{uid}/{token}"
+        frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        link = f"{frontend_url}/reset-password/{uid}/{token}"
 
         # Cleaned HTML string without CSS brace conflicts
         body = f"""

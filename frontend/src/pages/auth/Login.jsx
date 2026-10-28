@@ -102,10 +102,13 @@ function Login() {
     navigate("/dashboard");
   } catch (err) {
     console.error("LOGIN ERROR:", err.response?.data || err);
-
+    const data = err.response?.data;
+    const apiMessage = data?.detail || data?.non_field_errors?.[0];
     setError(
-      err.response?.data?.detail ||
-      "Invalid corporate credentials. Please try again."
+      apiMessage ||
+      (err.response
+        ? "Login was rejected. Check your email and password, then try again."
+        : "Cannot reach the server. Check that the API is running and its address is configured correctly.")
     );
   } finally {
     setLoading(false);

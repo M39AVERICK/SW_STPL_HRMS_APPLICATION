@@ -23,8 +23,18 @@ function Forgot() {
         navigate("/login");
       }, 3000);
     } catch (err) {
-      console.error(err);
-      setError("Failed to send reset link. Please verify your email and try again.");
+      console.error("PASSWORD RESET REQUEST ERROR:", err.response?.data || err);
+      const data = err.response?.data;
+      const apiMessage =
+        data?.detail ||
+        data?.email?.[0] ||
+        data?.non_field_errors?.[0];
+      setError(
+        apiMessage ||
+        (err.response
+          ? "The server could not send the reset link. Check the account email and email-server settings."
+          : "Cannot reach the server. Check that the API is running and its address is configured correctly.")
+      );
     } finally {
       setLoading(false);
     }
