@@ -157,6 +157,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    linked_user_email = serializers.EmailField(
+        source="user.email",
+        read_only=True,
+        allow_null=True,
+    )
+
     class Meta:
         model = Employee
 
@@ -184,6 +190,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             # Professional
             "position",
             "employee_type",
+            "attendance_category",
+            "linked_user_email",
             "reporting_manager",
             "employment_type",
             "department",

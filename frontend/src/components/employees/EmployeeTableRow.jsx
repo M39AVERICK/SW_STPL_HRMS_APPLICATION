@@ -1,8 +1,9 @@
 // src/components/employee/EmployeeTableRow.jsx
 import React from "react";
+import { Link2 } from "lucide-react";
 
 const EmployeeTableRow = React.memo(
-  ({ emp, isSelected, onToggleSelect, onView, onEdit, onDelete }) => {
+  ({ emp, isSelected, onToggleSelect, onView, onEdit, onDelete, onLinkAccount }) => {
     return (
       <tr className="border-b border-gray-100 hover:bg-gray-50 transition">
         <td className="text-center px-4 py-3">
@@ -30,7 +31,12 @@ const EmployeeTableRow = React.memo(
         </td>
         <td className="px-4 py-3 text-gray-600">{emp.department_name || "N/A"}</td>
         <td className="px-4 py-3 text-gray-600">{emp.position || "N/A"}</td>
-        <td className="px-4 py-3 text-gray-600">{emp.official_email || "N/A"}</td>
+        <td className="px-4 py-3 text-gray-600">
+          <div>{emp.official_email || "N/A"}</div>
+          <div className={`mt-1 text-[11px] ${emp.linked_user_email ? "text-emerald-700" : "text-amber-700"}`}>
+            {emp.linked_user_email ? `Login: ${emp.linked_user_email}` : "Employee login not linked"}
+          </div>
+        </td>
         <td className="px-4 py-3 text-gray-600">{emp.phone_number || "N/A"}</td>
         <td className="px-4 py-3 text-center">
           <span
@@ -56,6 +62,13 @@ const EmployeeTableRow = React.memo(
               className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100"
             >
               ✏
+            </button>
+            <button
+              onClick={() => onLinkAccount(emp)}
+              title="Link employee login account"
+              className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+            >
+              <Link2 size={16} />
             </button>
             <button
               onClick={() => onDelete(emp.id)}

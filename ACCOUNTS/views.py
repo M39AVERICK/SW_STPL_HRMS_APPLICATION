@@ -102,8 +102,22 @@ class Profile(APIView):
 
     def get(self, request):
         serializer = User_profile_Serializer(request.user)
+        from HR_APP.models import Employee
+
+        employee = Employee.objects.select_related("department").filter(user=request.user).first()
         return Response({
             "data": serializer.data,
+            "employee": ({
+                "id": employee.id,
+                "employee_id": employee.employee_id,
+                "full_name": employee.full_name,
+                "official_email": employee.official_email,
+                "position": employee.position,
+                "department": employee.department.name if employee.department_id else "",
+                "attendance_category": employee.attendance_category,
+                "work_location": employee.work_location,
+                "joining_date": employee.joining_date,
+            } if employee else None),
             "msg": "Profile retrieved successfully"
         }, status=200)
 

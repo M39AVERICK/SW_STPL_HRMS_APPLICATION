@@ -19,6 +19,7 @@ urlpatterns = [
 
     # 🏢 Attendance MODULE
     path('api/attendance/', include('Attendance.urls')),
+    path('api/timesheets/', include('Timesheet.urls')),
 ]
 
 # ADD THIS BLOCK AT THE VERY BOTTOM

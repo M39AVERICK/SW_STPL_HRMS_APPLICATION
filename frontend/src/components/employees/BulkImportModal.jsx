@@ -1,10 +1,29 @@
 import React, { useState } from "react";
 import API from "../../api";
 import { toast } from "react-toastify";
+import { Download, FileSpreadsheet } from "lucide-react";
 
 export default function BulkImportModal({ onClose, onSuccess }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+
+  const downloadTemplate = async () => {
+    try {
+      const response = await API.get("hr/employees/import-template/", { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "employee_import_template.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not download the employee import template.");
+    }
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -29,6 +48,7 @@ export default function BulkImportModal({ onClose, onSuccess }) {
     }
 
     setFile(selectedFile);
+    setImportResult(null);
   };
 
 
@@ -53,13 +73,13 @@ const handleImport = async () => {
     console.log("IMPORT RESPONSE:", response.data);
 
     const result = response.data;
-
-    toast.success(
-      result?.message || "Import request completed"
-    );
-
-    if (onSuccess) {
-      await onSuccess();
+    setImportResult(result);
+    if (result?.failed) {
+      toast.warning(`${result.created || 0} employee(s) imported; ${result.failed} row(s) need correction.`);
+      await onSuccess?.({ keepOpen: true });
+    } else {
+      toast.success(result?.message || "Employee import completed.");
+      if (onSuccess) await onSuccess();
     }
   } catch (err) {
     console.error("Import status:", err?.response?.status);
@@ -67,6 +87,7 @@ const handleImport = async () => {
     console.error("Import error:", err);
 
     const data = err?.response?.data;
+    if (data?.errors) setImportResult(data);
 
     const message =
       data?.detail ||
@@ -94,7 +115,7 @@ const handleImport = async () => {
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Upload an Excel or CSV file to import employees.
+              Download the sample workbook first. Fill the Employees sheet and upload it here.
             </p>
           </div>
 
@@ -106,6 +127,17 @@ const handleImport = async () => {
           >
             ×
           </button>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+          <div className="flex items-start gap-3">
+            <FileSpreadsheet size={20} className="mt-0.5 shrink-0 text-blue-700" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-blue-900">Use the import guide</p>
+              <p className="mt-1 text-xs leading-5 text-blue-800">Required: first name, last name, phone, official email, position, joining date, salary, PAN, and Aadhaar. Employment Type: Full Time, Intern, Contract, or Part Time. PF Number can be at most 20 characters.</p>
+              <button type="button" onClick={downloadTemplate} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100"><Download size={15}/> Download sample workbook</button>
+            </div>
+          </div>
         </div>
 
         {/* File Upload */}
@@ -148,6 +180,20 @@ const handleImport = async () => {
             <p className="mt-1 text-xs text-gray-500">
               {(file.size / 1024).toFixed(2)} KB
             </p>
+          </div>
+        )}
+
+        {importResult?.errors?.length > 0 && (
+          <div className="mt-4 max-h-56 overflow-y-auto rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-semibold text-amber-900">Correct these spreadsheet rows, then upload the file again</p>
+            <ul className="mt-2 space-y-2 text-xs text-amber-900">
+              {importResult.errors.map((item, index) => {
+                const details = typeof item.error === "string"
+                  ? item.error
+                  : Object.entries(item.error || {}).map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(" ") : messages}`).join("; ");
+                return <li key={`${item.row}-${index}`}><strong>Row {item.row}:</strong> {details}</li>;
+              })}
+            </ul>
           </div>
         )}
 

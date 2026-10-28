@@ -13,6 +13,7 @@ export default function EmployeeTable({
   onView,
   onEdit,
   onDelete,
+  onLinkAccount,
 }) {
   const renderSortArrow = (field) => {
     if (sortField !== field) return null;
@@ -63,6 +64,7 @@ export default function EmployeeTable({
                 onView={onView}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onLinkAccount={onLinkAccount}
               />
             ))
           )}

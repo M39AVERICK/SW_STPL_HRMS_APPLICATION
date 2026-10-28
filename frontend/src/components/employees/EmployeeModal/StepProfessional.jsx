@@ -1,6 +1,8 @@
 // src/components/employee/EmployeeModal/StepProfessional.jsx
 import React from "react";
 
+
+
 export default function StepProfessional({
   formData,
   onChange,
@@ -65,6 +67,22 @@ export default function StepProfessional({
                 {`${emp.first_name || ""} ${emp.last_name || ""}`.trim() || `Employee #${emp.id}`}
               </option>
             ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1">
+          Attendance Category
+        </label>
+        <select
+          name="attendance_category"
+          disabled={readOnly}
+          value={formData.attendance_category || "In-house"}
+          onChange={onChange}
+          className="w-full border border-gray-300 rounded-lg p-2 text-sm disabled:bg-gray-50"
+        >
+          <option value="In-house">In-house employee</option>
+          <option value="On-site">On-site employee</option>
         </select>
       </div>
 

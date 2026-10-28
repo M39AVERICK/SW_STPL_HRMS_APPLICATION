@@ -1,4 +1,11 @@
-{/* 🔷 Resource Table */}
+export default function ResourceTable({
+  resources = [],
+  handleResourceChange = () => {},
+  deleteRow = () => {},
+  addRow = () => {},
+}) {
+  return (
+    /* 🔷 Resource Table */
       <div className="bg-white p-4 rounded-xl shadow">
         <h2 className="font-semibold mb-3">Resources</h2>
 
@@ -48,3 +55,5 @@
           Add Resource
         </button>
       </div>
+  );
+}

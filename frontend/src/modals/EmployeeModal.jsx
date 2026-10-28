@@ -10,7 +10,6 @@ export default function EmployeeModal({
   form,
   setForm,
   departments,
-  employees,
   reload,
 }) {
   const steps = [

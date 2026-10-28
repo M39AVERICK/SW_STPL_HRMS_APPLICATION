@@ -57,6 +57,8 @@ class CURRENT_USER(AbstractBaseUser, PermissionsMixin):
         ('admin', 'Admin'),
         ('hr', 'HR'),
         ('viewer', 'Viewer'),
+        ('approver', 'Approver'),
+        ('finance', 'Finance'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='viewer')
 
@@ -85,7 +87,7 @@ class CURRENT_USER(AbstractBaseUser, PermissionsMixin):
             self.is_staff = True
             self.is_superuser = False
 
-        elif self.role == 'viewer':
+        elif self.role in {'viewer', 'approver', 'finance'}:
             self.is_staff = False
             self.is_superuser = False
 

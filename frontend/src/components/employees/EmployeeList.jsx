@@ -144,8 +144,29 @@ export default function EmployeeList() {
       await API.delete(`hr/employees/${id}/`);
       toast.success("Employee deleted successfully");
       loadEmployees();
-    } catch (err) {
+    } catch {
       toast.error("Delete failed");
+    }
+  }, [loadEmployees]);
+
+  const handleLinkAccount = useCallback(async (employee) => {
+    const email = window.prompt(
+      "Enter the employee's existing login email. It should usually match their official email.",
+      employee.official_email || "",
+    );
+    if (!email?.trim()) return;
+    try {
+      await API.post(`hr/employees/${employee.id}/link-account/`, { email: email.trim() });
+      toast.success("Employee login linked. They can now use My Attendance and My Timesheet.");
+      await loadEmployees();
+    } catch (error) {
+      const detail = error.response?.data?.errors ?? error.response?.data?.detail;
+      const message = typeof detail === "string"
+        ? detail
+        : detail && typeof detail === "object"
+          ? Object.values(detail).flat().join(" ")
+          : "Could not link the employee login.";
+      toast.error(message);
     }
   }, [loadEmployees]);
   //handling thr export of all employees to excel file
@@ -272,6 +293,7 @@ const handleExportSelected = useCallback(async () => {
         onView={(emp) => handleOpenModal("view", emp)}
         onEdit={(emp) => handleOpenModal("edit", emp)}
         onDelete={handleDelete}
+        onLinkAccount={handleLinkAccount}
       />
 
       {/* Pagination */}
@@ -298,8 +320,8 @@ const handleExportSelected = useCallback(async () => {
       {showImportModal && (
   <BulkImportModal
     onClose={() => setShowImportModal(false)}
-    onSuccess={async () => {
-      setShowImportModal(false);
+    onSuccess={async ({ keepOpen = false } = {}) => {
+      if (!keepOpen) setShowImportModal(false);
       await loadEmployees();
       await loadDepartments();
     }}

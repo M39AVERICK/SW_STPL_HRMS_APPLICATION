@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 
+// Context is intentionally colocated with its provider for the app's existing imports.
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

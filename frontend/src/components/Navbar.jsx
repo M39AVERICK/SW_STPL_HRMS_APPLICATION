@@ -1,13 +1,33 @@
-import { Bell, Search, User, LogOut } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import NotificationCenter from "./NotificationCenter";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
-    // Clear user state / tokens if needed
-    localStorage.removeItem("token");
+    logout();
     navigate("/login");
+  };
+  const userName = user?.name || user?.email || "User";
+  const roleLabel = user?.role ? `${user.role[0].toUpperCase()}${user.role.slice(1)}` : "User";
+  const roleDescription = {
+    admin: "Organization control",
+    hr: "People operations",
+    approver: "Project approvals",
+    finance: "Finance processing",
+    viewer: "Employee self-service",
+  }[user?.role] || "HRMS Portal";
+  const initials = userName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  const roleColors = {
+    admin: "bg-violet-100 text-violet-700",
+    hr: "bg-blue-100 text-blue-700",
+    approver: "bg-amber-100 text-amber-700",
+    finance: "bg-emerald-100 text-emerald-700",
+    viewer: "bg-slate-100 text-slate-700",
   };
 
   return (
@@ -17,28 +37,25 @@ export default function Navbar() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
         <input
           type="text"
-          placeholder="Search employee, records..."
+          placeholder={user?.role === "finance" ? "Search finance records..." : user?.role === "approver" ? "Search assigned reviews..." : "Search employee, records..."}
           className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
         />
       </div>
 
       {/* Right Controls */}
       <div className="flex items-center gap-4">
-        <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl relative transition">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full"></span>
-        </button>
+        <NotificationCenter />
 
         <div className="h-6 w-px bg-gray-200"></div>
 
         {/* User Info & Actions */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
-            HR
-          </div>
+          <button type="button" onClick={() => navigate("/dashboard/profile")} title="Open my profile" aria-label="Open my profile" className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition hover:ring-2 hover:ring-blue-300 ${roleColors[user?.role] || roleColors.viewer}`}>
+            {initials}
+          </button>
           <div className="hidden md:block text-left">
-            <p className="text-sm font-semibold text-gray-800 leading-tight">Admin User</p>
-            <p className="text-xs text-gray-500">Administrator</p>
+            <p className="text-sm font-semibold text-gray-800 leading-tight">{userName}</p>
+            <p className="text-xs text-gray-500">{roleLabel} · {roleDescription}</p>
           </div>
           <button
             onClick={handleLogout}

@@ -33,7 +33,7 @@ function Forgot() {
   return (
     <div className="min-h-screen w-full bg-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
       {/* Outer Card Container */}
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[580px] border border-slate-200/60 relative">
+      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-580px border border-slate-200/60 relative">
         
         {/* LEFT SIDE - HERO BRANDING */}
         <div className="hidden md:flex w-1/2 relative bg-slate-900 overflow-hidden flex-col justify-between p-10 text-white">
@@ -43,7 +43,7 @@ function Forgot() {
             alt="Account Recovery Security"
             className="absolute inset-0 w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to from-slate-950 via-slate-900/60 to-transparent" />
 
           {/* Top Enterprise Tag */}
           <div className="relative z-10 flex items-center">

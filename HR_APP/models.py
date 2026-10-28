@@ -129,6 +129,16 @@ class Employee(models.Model):
         null=True,
     )
 
+    class AttendanceCategory(models.TextChoices):
+        IN_HOUSE = "In-house", "In-house"
+        ON_SITE = "On-site", "On-site"
+
+    attendance_category = models.CharField(
+        max_length=20,
+        choices=AttendanceCategory.choices,
+        default=AttendanceCategory.IN_HOUSE,
+    )
+
     reporting_manager = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,

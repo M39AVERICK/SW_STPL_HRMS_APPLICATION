@@ -5,24 +5,17 @@ import StplLogo from "./StplLogo";
 function Topbar() {
   const { user, logout } = useContext(AuthContext);
 
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(
+    () => sessionStorage.getItem("showWelcome") === "true",
+  );
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
-    const shouldShow = sessionStorage.getItem("showWelcome");
-
-    if (shouldShow === "true") {
-      setShowWelcome(true);
-
-      sessionStorage.removeItem("showWelcome");
-
-      const timer = setTimeout(() => {
-        setShowWelcome(false);
-      }, 4000);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    if (!showWelcome) return;
+    sessionStorage.removeItem("showWelcome");
+    const timer = setTimeout(() => setShowWelcome(false), 4000);
+    return () => clearTimeout(timer);
+  }, [showWelcome]);
 
   const userName = user?.name || "User";
 
@@ -118,12 +111,12 @@ function Topbar() {
 
       {/* WELCOME NOTIFICATION */}
       {showWelcome && (
-        <div className="fixed top-20 right-6 z-[100] animate-fadeSlideUp">
+        <div className="fixed top-20 right-6 z-100 animate-fadeSlideUp">
 
           <div className="w-80 bg-white rounded-xl shadow-2xl border border-gray-100 p-4 flex items-start gap-3">
 
             {/* Avatar */}
-            <div className="flex-shrink-0 w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+            <div className="flex-shrink-0w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
               {initials}
             </div>
 

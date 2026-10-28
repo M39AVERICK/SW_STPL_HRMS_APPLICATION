@@ -257,7 +257,7 @@ export default function ModalContainer({
   const [tabStatus, setTabStatus] =
     useState({});
 
-  const [tabErrors, setTabErrors] =
+  const [, setTabErrors] =
     useState({});
 
   const [visitedTabs, setVisitedTabs] =
@@ -307,6 +307,7 @@ export default function ModalContainer({
         position: "",
 
         employee_type: "Permanent",
+        attendance_category: "In-house",
         employment_type: "Full Time",
 
         joining_date: "",
@@ -424,6 +425,8 @@ export default function ModalContainer({
       employee_type:
         emp.employee_type ||
         "Permanent",
+      attendance_category:
+        emp.attendance_category || "In-house",
 
       employment_type:
         emp.employment_type ||
@@ -804,6 +807,7 @@ export default function ModalContainer({
 
       "position",
       "employee_type",
+      "attendance_category",
 
       "reporting_manager",
       "employment_type",
@@ -1087,8 +1091,7 @@ export default function ModalContainer({
        * entire employee object.
        */
 
-      const response =
-        await API.patch(
+      await API.patch(
           `hr/employees/${employeeId}/`,
           data
         );
