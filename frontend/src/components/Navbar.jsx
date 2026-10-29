@@ -1,12 +1,14 @@
 import { Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import NotificationCenter from "./NotificationCenter";
+import API from "../api";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
+  const [profilePicture, setProfilePicture] = useState("");
 
   const handleLogout = () => {
     logout();
@@ -30,6 +32,29 @@ export default function Navbar() {
     viewer: "bg-slate-100 text-slate-700",
   };
 
+  useEffect(() => {
+    let mounted = true;
+    const loadProfilePicture = async () => {
+      if (user?.role !== "viewer") {
+        setProfilePicture("");
+        return;
+      }
+      try {
+        const response = await API.get("users/profile/");
+        if (mounted) setProfilePicture(response.data?.employee?.profile_picture || "");
+      } catch {
+        if (mounted) setProfilePicture("");
+      }
+    };
+    loadProfilePicture();
+    const handlePictureUpdate = (event) => setProfilePicture(event.detail || "");
+    window.addEventListener("profile-picture-updated", handlePictureUpdate);
+    return () => {
+      mounted = false;
+      window.removeEventListener("profile-picture-updated", handlePictureUpdate);
+    };
+  }, [user?.id, user?.role]);
+
   return (
     <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between sticky top-0 z-10">
       {/* Global Search Bar */}
@@ -51,7 +76,7 @@ export default function Navbar() {
         {/* User Info & Actions */}
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => navigate("/dashboard/profile")} title="Open my profile" aria-label="Open my profile" className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm transition hover:ring-2 hover:ring-blue-300 ${roleColors[user?.role] || roleColors.viewer}`}>
-            {initials}
+            {profilePicture ? <img src={profilePicture} alt="" onError={() => setProfilePicture("")} className="h-full w-full rounded-xl object-cover"/> : initials}
           </button>
           <div className="hidden md:block text-left">
             <p className="text-sm font-semibold text-gray-800 leading-tight">{userName}</p>

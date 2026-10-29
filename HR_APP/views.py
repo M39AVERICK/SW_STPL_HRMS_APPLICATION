@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
+from django.db import transaction
 import csv
 import io
 import os
@@ -201,7 +202,15 @@ class EmployeeViewSet(ModelViewSet):
             email__iexact=employee_email,
             role="viewer",
         ).first()
-        serializer.save(user=employee_login)
+        employee = serializer.save(user=employee_login)
+        self._sync_viewer_account_status(employee)
+
+    @staticmethod
+    def _sync_viewer_account_status(employee):
+        login = employee.user
+        if login and login.role == "viewer" and login.is_active != employee.is_active:
+            login.is_active = employee.is_active
+            login.save(update_fields=["is_active", "updated_at"])
 
     def perform_update(self, serializer):
         employee = serializer.instance
@@ -214,7 +223,9 @@ class EmployeeViewSet(ModelViewSet):
                 email__iexact=employee_email,
                 role="viewer",
             ).first()
-        serializer.save(user=login)
+        with transaction.atomic():
+            employee = serializer.save(user=login)
+            self._sync_viewer_account_status(employee)
 
     @action(detail=True, methods=["post"], url_path="link-account")
     def link_account(self, request, pk=None):
@@ -242,6 +253,7 @@ class EmployeeViewSet(ModelViewSet):
 
         employee.user = user
         employee.save(update_fields=["user"])
+        self._sync_viewer_account_status(employee)
         return Response({
             "message": "Employee login linked successfully.",
             "employee_id": employee.pk,
@@ -599,6 +611,7 @@ class EmployeeViewSet(ModelViewSet):
                         role="viewer",
                     ).first()
                     serializer.save(user=employee_login)
+                    self._sync_viewer_account_status(serializer.instance)
 
                     created += 1
 

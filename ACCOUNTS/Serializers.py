@@ -62,6 +62,12 @@ class Login_Serializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError("Account is disabled")
 
+        if user.role == "viewer":
+            from HR_APP.models import Employee
+            employee = Employee.objects.filter(user=user).only("is_active").first()
+            if employee and not employee.is_active:
+                raise serializers.ValidationError("Employee account is inactive. Please contact HR.")
+
         attrs['user'] = user
         return attrs
 

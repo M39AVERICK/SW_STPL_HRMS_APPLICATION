@@ -36,7 +36,11 @@ export default function ProfilePage() {
   async function uploadPicture(file) {
     if (!file) return;
     const body = new FormData(); body.append("profile_picture", file);
-    try { await API.patch("users/profile/", body); toast.success("Profile photo updated."); await load(); }
+    try {
+      const response = await API.patch("users/profile/", body);
+      window.dispatchEvent(new CustomEvent("profile-picture-updated", { detail: response.data?.profile_picture || "" }));
+      toast.success("Profile photo updated."); await load();
+    }
     catch (error) { toast.error(error.response?.data?.detail || "Could not update your photo."); }
   }
 
