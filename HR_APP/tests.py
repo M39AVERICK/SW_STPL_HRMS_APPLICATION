@@ -1,10 +1,12 @@
 from datetime import date
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from ACCOUNTS.models import CURRENT_USER
 from .models import Employee
+from .serializers import EmployeeDocumentSerializer
 
 
 class EmployeeAccountStatusTests(TestCase):
@@ -65,3 +67,18 @@ class EmployeeAccountStatusTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
+
+
+class EmployeeDocumentFormatTests(TestCase):
+    def test_pdf_jpg_and_png_documents_are_accepted(self):
+        for filename in ("resume.pdf", "resume.jpg", "resume.png"):
+            serializer = EmployeeDocumentSerializer(data={
+                "resume": SimpleUploadedFile(filename, b"file-content"),
+            })
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_unsupported_document_extension_is_rejected(self):
+        serializer = EmployeeDocumentSerializer(data={
+            "resume": SimpleUploadedFile("resume.docx", b"file-content"),
+        })
+        self.assertFalse(serializer.is_valid())

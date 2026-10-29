@@ -182,7 +182,7 @@ export default function StepPersonal({ formData, onChange, readOnly }) {
         <input
           type="file"
           name="profile_picture"
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
           disabled={readOnly}
           onChange={onChange}
           className="w-full border border-gray-300 rounded-lg p-2 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:bg-gray-50"

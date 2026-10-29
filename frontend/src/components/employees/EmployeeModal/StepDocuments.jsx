@@ -53,7 +53,7 @@ export default function StepDocuments({
     <div className="space-y-4">
 
       <p className="text-sm text-gray-500 mb-2">
-        Upload relevant employee documents and identity attachments.
+        Upload employee documents and identity attachments. Accepted formats: PDF, JPG, JPEG, and PNG.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -109,6 +109,7 @@ export default function StepDocuments({
               <input
                 type="file"
                 name={doc.name}
+                accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
                 disabled={readOnly}
                 onChange={handleFileChange}
                 className="block w-full text-xs text-gray-500

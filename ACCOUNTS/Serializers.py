@@ -4,9 +4,16 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import authenticate
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 
 from ACCOUNTS.models import CURRENT_USER
 from ACCOUNTS.utiles import Utiles
+
+
+class ProfilePictureUploadSerializer(serializers.Serializer):
+    profile_picture = serializers.ImageField(
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+    )
 
 
 # =========================

@@ -8,7 +8,8 @@ from ACCOUNTS.Serializers import (
     User_profile_Serializer,
     Password_change_Serializer,
     Send_email_Serializer,
-    User_password_reset_email
+    User_password_reset_email,
+    ProfilePictureUploadSerializer,
 )
 
 from ACCOUNTS.renderers import UserRenderer
@@ -145,9 +146,9 @@ class Profile(APIView):
         employee = Employee.objects.filter(user=request.user).first()
         if not employee:
             raise PermissionDenied("No employee record is linked to this login.")
-        if "profile_picture" not in request.FILES:
-            return Response({"detail": "Upload a profile_picture image."}, status=400)
-        employee.profile_picture = request.FILES["profile_picture"]
+        serializer = ProfilePictureUploadSerializer(data=request.FILES)
+        serializer.is_valid(raise_exception=True)
+        employee.profile_picture = serializer.validated_data["profile_picture"]
         employee.save(update_fields=["profile_picture"])
         return Response({"profile_picture": request.build_absolute_uri(employee.profile_picture.url)})
 

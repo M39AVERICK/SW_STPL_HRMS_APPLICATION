@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.core.validators import FileExtensionValidator
 from ACCOUNTS.models import CURRENT_USER
 
 
@@ -87,6 +88,7 @@ class Employee(models.Model):
         upload_to="employee_photos/",
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
     )
 
     marital_status = models.CharField(
@@ -393,36 +395,42 @@ class EmployeeDocument(models.Model):
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     aadhaar_document = models.FileField(
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     resume = models.FileField(
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     offer_letter = models.FileField(
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     experience_certificate = models.FileField(
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     other_document = models.FileField(
         upload_to=employee_document_path,
         blank=True,
         null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
 
     def __str__(self):

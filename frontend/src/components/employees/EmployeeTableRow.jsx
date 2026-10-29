@@ -1,6 +1,15 @@
 // src/components/employee/EmployeeTableRow.jsx
-import React from "react";
+import React, { useState } from "react";
 import { Link2 } from "lucide-react";
+
+function EmployeeAvatar({ employee }) {
+  const [failed, setFailed] = useState(false);
+  const initials = `${employee.first_name?.[0] || "E"}${employee.last_name?.[0] || ""}`.toUpperCase();
+  if (!employee.profile_picture || failed) {
+    return <div aria-label={`${employee.first_name || "Employee"} profile initials`} className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-blue-50 text-xs font-bold text-blue-700">{initials}</div>;
+  }
+  return <img src={employee.profile_picture} alt={`${employee.first_name || "Employee"} profile`} onError={() => setFailed(true)} className="h-10 w-10 rounded-full border border-gray-200 object-cover"/>;
+}
 
 const EmployeeTableRow = React.memo(
   ({ emp, isSelected, onToggleSelect, onView, onEdit, onDelete, onLinkAccount }) => {
@@ -14,16 +23,7 @@ const EmployeeTableRow = React.memo(
           />
         </td>
         <td className="px-4 py-3">
-          <img
-            src={
-              emp.profile_picture ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                emp.first_name || "Employee"
-              )}`
-            }
-            alt="Profile"
-            className="w-10 h-10 rounded-full object-cover border border-gray-200"
-          />
+          <EmployeeAvatar employee={emp}/>
         </td>
         <td className="px-4 py-3 font-medium text-gray-700">{emp.employee_id}</td>
         <td className="px-4 py-3 font-semibold text-gray-900">
