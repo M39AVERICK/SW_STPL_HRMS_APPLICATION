@@ -13,6 +13,9 @@ defaultApiBase.hash = "";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || defaultApiBase.href;
 
+const isPublicAuthRequest = (url = "") =>
+  /(?:^|\/)users\/(?:register|login|refresh|reset-password)(?:\/|$)/.test(url);
+
 // =========================
 // 🔥 SINGLE AXIOS INSTANCE
 // =========================
@@ -29,8 +32,10 @@ API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
 
-    if (token) {
+    if (token && !isPublicAuthRequest(config.url)) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (isPublicAuthRequest(config.url)) {
+      delete config.headers.Authorization;
     }
 
     return config;
@@ -57,7 +62,8 @@ API.interceptors.response.use(
     // =========================
     if (
       error.response.status === 401 &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !isPublicAuthRequest(originalRequest.url)
     ) {
       originalRequest._retry = true;
 

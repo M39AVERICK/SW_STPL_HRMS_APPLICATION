@@ -13,7 +13,7 @@ from ACCOUNTS.Serializers import (
 
 from ACCOUNTS.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.exceptions import PermissionDenied
 from django.http import FileResponse
@@ -36,6 +36,8 @@ def get_tokens_for_user(user):
 # =========================
 class User_register(APIView):
     renderer_classes = [UserRenderer]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = UserRegister_Serializer(data=request.data)

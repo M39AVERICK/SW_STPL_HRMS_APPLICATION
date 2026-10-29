@@ -48,7 +48,13 @@ function Signup() {
       navigate("/login");
     } catch (err) {
       console.error(err.response?.data || err);
-      setError("Registration failed. Please check your information and try again.");
+      const responseData = err.response?.data;
+      const fieldErrors = responseData && typeof responseData === "object"
+        ? Object.entries(responseData)
+            .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(" ") : messages}`)
+            .join(" ")
+        : "";
+      setError(fieldErrors || responseData?.detail || "Registration failed. Please check your information and try again.");
     } finally {
       setLoading(false);
     }
