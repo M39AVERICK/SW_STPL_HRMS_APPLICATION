@@ -21,6 +21,7 @@ import EmployeeTimesheetPage from "./pages/timesheets/EmployeeTimesheetPage";
 const TimesheetApprovalsPage = lazy(() => import("./pages/timesheets/TimesheetApprovalsPage"));
 const ProjectManagementPage = lazy(() => import("./pages/timesheets/ProjectManagementPage"));
 const FinanceProcessingPage = lazy(() => import("./pages/timesheets/FinanceProcessingPage"));
+const TimesheetPayrollRecordsPage = lazy(() => import("./pages/timesheets/TimesheetPayrollRecordsPage"));
 const UserAccessPage = lazy(() => import("./pages/UserAccessPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const ApproverAssignmentsPage = lazy(() => import("./pages/timesheets/ApproverAssignmentsPage"));
@@ -69,6 +70,7 @@ function App() {
           <Route path="assigned-employees" element={<ProtectedRoute allowedRoles={["approver"]}><ApproverAssignmentsPage /></ProtectedRoute>} />
           <Route path="timesheet-approvals" element={<ProtectedRoute allowedRoles={["admin", "hr", "approver"]}><TimesheetApprovalsPage /></ProtectedRoute>} />
           <Route path="finance" element={<ProtectedRoute allowedRoles={["finance"]}><FinanceProcessingPage /></ProtectedRoute>} />
+          <Route path="payroll-records" element={<ProtectedRoute allowedRoles={["admin", "hr"]}><TimesheetPayrollRecordsPage /></ProtectedRoute>} />
 
           
         </Route>

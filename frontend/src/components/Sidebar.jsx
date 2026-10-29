@@ -44,7 +44,10 @@ export default function Sidebar() {
       { label: "Timesheet approvals", path: "/dashboard/timesheet-approvals", icon: ClipboardCheck },
     ] : []),
     ...(["admin", "hr"].includes(user?.role)
-      ? [{ label: "Approver reviews", path: "/dashboard/timesheet-approvals", icon: ClipboardCheck }]
+      ? [
+          { label: "Approver reviews", path: "/dashboard/timesheet-approvals", icon: ClipboardCheck },
+          { label: "Finance & payroll records", path: "/dashboard/payroll-records", icon: WalletCards },
+        ]
       : []),
     ...(user?.role === "finance" ? [{ label: "Finance processing", path: "/dashboard/finance", icon: WalletCards }] : []),
   ];

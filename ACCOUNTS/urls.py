@@ -7,7 +7,8 @@ from .views import (
     Reset_password,
     Reset_password_after_email,
     TokenRefreshFromCookie,
-    LogoutView
+    LogoutView,
+    ProfileDocumentDownload,
 )
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
 
     # 👤 User
     path('profile/', Profile.as_view(), name='profile'),
+    path('profile/documents/<str:field>/', ProfileDocumentDownload.as_view(), name='profile-document'),
 
     # 🔑 Password
     path('change-password/', Change_password.as_view(), name='change-password'),

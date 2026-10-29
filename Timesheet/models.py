@@ -136,6 +136,14 @@ class TimesheetRevision(models.Model):
     )
     finance_processed_at = models.DateTimeField(null=True, blank=True)
     finance_reference = models.CharField(max_length=100, blank=True)
+    payroll_days = models.PositiveSmallIntegerField(null=True, blank=True)
+    payroll_hours = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    payroll_note = models.TextField(blank=True)
+    payroll_recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="payroll_recorded_timesheets",
+    )
+    payroll_recorded_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [

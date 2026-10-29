@@ -205,7 +205,7 @@ class TimesheetService:
         if getattr(finance_user, "role", None) != "finance":
             raise PermissionDenied("Only Finance can mark this timesheet processed.")
         if revision.status != TimesheetRevision.Status.FINANCE_PENDING:
-            raise ValidationError("This timesheet has not been cleared by HR for Finance.")
+            raise ValidationError("This timesheet has not been approved by the project approver for Finance.")
 
         revision.status = TimesheetRevision.Status.PROCESSED
         revision.finance_processed_by = finance_user

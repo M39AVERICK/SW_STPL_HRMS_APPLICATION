@@ -14,6 +14,10 @@ from ACCOUNTS.Serializers import (
 from ACCOUNTS.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.exceptions import PermissionDenied
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 
 
 # =========================
@@ -117,9 +121,55 @@ class Profile(APIView):
                 "attendance_category": employee.attendance_category,
                 "work_location": employee.work_location,
                 "joining_date": employee.joining_date,
+                "profile_picture": request.build_absolute_uri(employee.profile_picture.url) if employee.profile_picture else "",
+                "documents": self._document_links(request, employee),
             } if employee else None),
             "msg": "Profile retrieved successfully"
         }, status=200)
+
+    @staticmethod
+    def _document_links(request, employee):
+        from HR_APP.models import EmployeeDocument
+        documents = EmployeeDocument.objects.filter(employee=employee).first()
+        if not documents:
+            return []
+        fields = ("pan_document", "aadhaar_document", "resume", "offer_letter", "experience_certificate", "other_document")
+        return [{"field": name, "name": getattr(documents, name).name.rsplit("/", 1)[-1],
+                 "url": request.build_absolute_uri(f"/api/users/profile/documents/{name}/")}
+                for name in fields if getattr(documents, name)]
+
+    def patch(self, request):
+        from HR_APP.models import Employee
+        employee = Employee.objects.filter(user=request.user).first()
+        if not employee:
+            raise PermissionDenied("No employee record is linked to this login.")
+        if "profile_picture" not in request.FILES:
+            return Response({"detail": "Upload a profile_picture image."}, status=400)
+        employee.profile_picture = request.FILES["profile_picture"]
+        employee.save(update_fields=["profile_picture"])
+        return Response({"profile_picture": request.build_absolute_uri(employee.profile_picture.url)})
+
+
+class ProfileDocumentDownload(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, field):
+        from HR_APP.models import Employee, EmployeeDocument
+        if getattr(request.user, "role", None) not in {"admin", "hr"}:
+            employee = Employee.objects.filter(user=request.user).first()
+            if not employee:
+                raise PermissionDenied("No employee record is linked to this login.")
+            record = EmployeeDocument.objects.filter(employee=employee).first()
+        else:
+            employee_id = request.query_params.get("employee")
+            employee = get_object_or_404(Employee, pk=employee_id)
+            record = EmployeeDocument.objects.filter(employee=employee).first()
+        allowed = {"pan_document", "aadhaar_document", "resume", "offer_letter", "experience_certificate", "other_document"}
+        if field not in allowed or not record or not getattr(record, field):
+            from rest_framework.exceptions import NotFound
+            raise NotFound("Document not found.")
+        file = getattr(record, field)
+        return FileResponse(file.open("rb"), as_attachment=True, filename=file.name.rsplit("/", 1)[-1])
 
 
 # =========================

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models.deletion import ProtectedError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -444,15 +445,25 @@ class TimesheetApprovalQueueView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        revisions = TimesheetRevision.objects.filter(
-            status=TimesheetRevision.Status.SUBMITTED
-        ).select_related(
+        revisions = TimesheetRevision.objects.select_related(
             "period__employee",
             "period__assignment__project__client",
             "period__assignment__approver",
-        ).prefetch_related("entries", "attachments").order_by("submitted_at")
-
-        revisions = revisions.filter(period__assignment__approver=request.user)
+            "reviewed_by",
+        ).prefetch_related("entries", "attachments")
+        if is_hr_or_admin(request.user):
+            revisions = revisions.filter(status__in=[
+                TimesheetRevision.Status.SUBMITTED,
+                TimesheetRevision.Status.APPROVED,
+                TimesheetRevision.Status.FINANCE_PENDING,
+                TimesheetRevision.Status.PROCESSED,
+                TimesheetRevision.Status.CHANGES_REQUESTED,
+            ]).order_by("-submitted_at")
+        else:
+            revisions = revisions.filter(
+                status=TimesheetRevision.Status.SUBMITTED,
+                period__assignment__approver=request.user,
+            ).order_by("submitted_at")
 
         return Response(TimesheetRevisionSerializer(revisions, many=True).data)
 
@@ -480,6 +491,49 @@ class TimesheetFinanceQueueView(APIView):
             TimesheetService.finance_process, revision, request.user,
             serializer.validated_data.get("reference", ""),
         )
+        return Response(TimesheetRevisionSerializer(revision).data)
+
+
+class TimesheetPayrollRecordsView(APIView):
+    """Finance status visibility and HR-only payroll record entry."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not is_hr_or_admin(request.user):
+            raise PermissionDenied("Only HR or admin can view finance records.")
+        revisions = TimesheetRevision.objects.filter(
+            status__in=[TimesheetRevision.Status.FINANCE_PENDING, TimesheetRevision.Status.PROCESSED]
+        ).select_related(
+            "period__employee", "period__assignment__project__client",
+            "reviewed_by", "finance_processed_by", "payroll_recorded_by",
+        ).prefetch_related("entries", "attachments").order_by("-finance_processed_at", "-reviewed_at")
+        return Response(TimesheetRevisionSerializer(revisions, many=True).data)
+
+    def patch(self, request, revision_id):
+        if not is_hr_or_admin(request.user):
+            raise PermissionDenied("Only HR or admin can record payroll hours.")
+        revision = get_object_or_404(TimesheetRevision, pk=revision_id)
+        if revision.status != TimesheetRevision.Status.PROCESSED:
+            raise ValidationError("Payroll records can be entered after Finance processes the timesheet.")
+        days = request.data.get("payroll_days")
+        hours = request.data.get("payroll_hours")
+        note = request.data.get("payroll_note", "")
+        try:
+            days = int(days)
+            from decimal import Decimal, InvalidOperation
+            hours = Decimal(str(hours))
+        except (TypeError, ValueError, InvalidOperation):
+            raise ValidationError({"payroll": "Enter payroll days and hours as numbers."})
+        if not 0 <= days <= 7 or not hours.is_finite() or hours < 0 or hours > 168:
+            raise ValidationError({"payroll": "Days must be 0–7 and hours must be 0–168."})
+        if not isinstance(note, str) or len(note) > 2000:
+            raise ValidationError({"payroll_note": "Enter a note up to 2000 characters."})
+        revision.payroll_days = days
+        revision.payroll_hours = hours
+        revision.payroll_note = note.strip()
+        revision.payroll_recorded_by = request.user
+        revision.payroll_recorded_at = timezone.now()
+        revision.save(update_fields=["payroll_days", "payroll_hours", "payroll_note", "payroll_recorded_by", "payroll_recorded_at"])
         return Response(TimesheetRevisionSerializer(revision).data)
 
 

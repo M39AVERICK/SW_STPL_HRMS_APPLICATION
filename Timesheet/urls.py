@@ -20,6 +20,7 @@ from .views import (
     TimesheetReviewView,
     TimesheetStartRevisionView,
     TimesheetSubmitView,
+    TimesheetPayrollRecordsView,
 )
 
 app_name = "timesheet"
@@ -44,5 +45,7 @@ urlpatterns = [
     path("approvals/", TimesheetApprovalQueueView.as_view(), name="approval-queue"),
     path("finance/", TimesheetFinanceQueueView.as_view(), name="finance-queue"),
     path("finance/<int:revision_id>/", TimesheetFinanceQueueView.as_view(), name="finance-process"),
+    path("payroll-records/", TimesheetPayrollRecordsView.as_view(), name="payroll-records"),
+    path("payroll-records/<int:revision_id>/", TimesheetPayrollRecordsView.as_view(), name="payroll-record-detail"),
     path("revisions/<int:revision_id>/review/", TimesheetReviewView.as_view(), name="review"),
 ]

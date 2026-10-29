@@ -236,6 +236,7 @@ class TimesheetRevisionSerializer(serializers.ModelSerializer):
     approver_name = serializers.CharField(source="reviewed_by.name", read_only=True, allow_null=True)
     hr_reviewer_name = serializers.CharField(source="hr_reviewed_by.name", read_only=True, allow_null=True)
     finance_processor_name = serializers.CharField(source="finance_processed_by.name", read_only=True, allow_null=True)
+    payroll_recorder_name = serializers.CharField(source="payroll_recorded_by.name", read_only=True, allow_null=True)
     entries = TimesheetEntrySerializer(many=True, read_only=True)
     attachments = TimesheetAttachmentSerializer(many=True, read_only=True)
 
@@ -256,9 +257,12 @@ class TimesheetRevisionSerializer(serializers.ModelSerializer):
             "finance_processed_by",
             "finance_processed_at",
             "finance_reference",
+            "payroll_days", "payroll_hours", "payroll_note",
+            "payroll_recorded_by", "payroll_recorded_at",
             "approver_name",
             "hr_reviewer_name",
             "finance_processor_name",
+            "payroll_recorder_name",
             "employee_name",
             "employee_id",
             "project_name",
@@ -283,6 +287,8 @@ class TimesheetRevisionSerializer(serializers.ModelSerializer):
             "finance_processed_by",
             "finance_processed_at",
             "finance_reference",
+            "payroll_days", "payroll_hours", "payroll_note",
+            "payroll_recorded_by", "payroll_recorded_at",
         ]
 
 

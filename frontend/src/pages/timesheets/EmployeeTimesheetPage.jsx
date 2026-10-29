@@ -25,9 +25,9 @@ function errorText(error) {
 function statusLabel(status) {
   return {
     Submitted: "Awaiting project approver",
-    Approved: "Approver approved · awaiting HR",
+    Approved: "Approver approved · awaiting Finance",
     "Finance Pending": "Sent to Finance",
-    Processed: "Finance processed",
+    Processed: "Approved · Finance processed",
     "Changes Requested": "Changes requested",
   }[status] || status || "Draft";
 }
@@ -237,7 +237,7 @@ export default function EmployeeTimesheetPage() {
                   <label className="text-sm font-medium text-slate-700 md:col-span-2">Work completed<textarea required rows="2" maxLength="5000" value={entry.work_description} onChange={(event) => setEntry({ ...entry, work_description: event.target.value })} placeholder="Summarize the work completed for this date" className={inputClass}/></label>
                   <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 md:col-span-2"><Plus size={16}/> Save daily entry</button>
                 </form>
-              </> : <div className="flex items-start gap-2 rounded-xl bg-slate-50 p-4 text-sm text-slate-600"><AlertCircle size={18} className="mt-0.5 shrink-0 text-blue-600"/><span>This revision is {period.latest_revision?.status}. Entries and files are locked while it is under review or approved.</span></div>}
+              </> : <div className={`flex items-start gap-2 rounded-xl p-4 text-sm ${period.latest_revision?.status === "Processed" ? "bg-emerald-50 text-emerald-900" : "bg-slate-50 text-slate-600"}`}><AlertCircle size={18} className={`mt-0.5 shrink-0 ${period.latest_revision?.status === "Processed" ? "text-emerald-600" : "text-blue-600"}`}/><span>{period.latest_revision?.status === "Processed" ? <>Your timesheet is approved. {period.latest_revision?.approver_name ? `Approved by ${period.latest_revision.approver_name}` : "Your project approver approved it"}{period.latest_revision?.reviewed_at ? ` on ${new Date(period.latest_revision.reviewed_at).toLocaleDateString("en-IN")}` : ""}. Finance has processed it{period.latest_revision?.finance_processed_at ? ` on ${new Date(period.latest_revision.finance_processed_at).toLocaleDateString("en-IN")}` : ""}.</> : <>This revision is {statusLabel(period.latest_revision?.status)}. Entries and files are locked while it is under review or approved.</>}</span></div>}
 
               <div><h3 className="font-semibold text-slate-800">Daily entries ({entries.length})</h3>{entries.length === 0 ? <p className="mt-2 text-sm text-slate-500">No daily work entries yet.</p> : <div className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100">{entries.map((item) => <article key={item.id} className="grid gap-2 p-3 sm:grid-cols-[110px_120px_1fr]"><div className="text-sm font-semibold text-slate-800">{item.work_date}</div><div className="text-xs text-slate-600">Regular {item.regular_hours}h · Extra {item.extra_hours}h</div><p className="whitespace-pre-wrap text-sm text-slate-600">{item.work_description}</p></article>)}</div>}</div>
 
